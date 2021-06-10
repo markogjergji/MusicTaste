@@ -1,0 +1,25 @@
+body{
+    background-color: #172a3a;
+    font-family: 'Nunito', sans-serif;
+    color:white;
+}
+
+#welcome{
+    padding:10vh 10vw;
+    border:1px solid white;
+}
+
+#login{
+    background-color: #004346;
+    border:1px solid white;
+}
+#login>button{
+    border:none;
+    border-radius:30px;
+    width:12vw;
+    height:4vw;
+    padding:5px 20px;
+    background-color: #09bc8a;
+    color:white;
+    font-size:25px;
+}

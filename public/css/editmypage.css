@@ -1,0 +1,194 @@
+:root {
+    --grid-cols: 1;
+    --grid-rows: 1;
+  }
+  #main-page-container{
+    width: 100%;
+    height:95vh;
+    margin: auto;
+    background-color: #172a3a;
+    display:grid;
+    grid-template-columns:1fr 3fr;
+    grid-template-rows:1fr;
+}
+  
+ /* #cards {
+    display: grid;
+    grid-gap: 1em;
+    grid-template-rows: repeat(var(--grid-rows), 1fr);
+    grid-template-columns: repeat(var(--grid-cols), 1fr);
+  }*/
+  #search-container{
+      overflow: auto;
+  }
+
+  #cards-container{
+      margin:auto;
+      border:1px solid white;
+      border-radius:20px;
+      padding:50px;
+      overflow:auto;
+      margin-top:100px;
+      margin-bottom:10px;
+  }
+  .grid-item {
+    padding: 0;
+    border: 1px solid #dddddd69;
+    border-style:dashed;
+    border-radius:20px;
+    text-align: center;
+    display: inline-block;
+    width: 12vw;
+    height: 12vw;
+    margin-top: 0;
+  }
+
+  .single-placement-row{
+    margin:0;
+    padding:0 80px 0 80px;
+    margin-bottom: 2vw;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr 1fr;
+    grid-gap: 2vw;
+  }
+
+
+
+.title-placement-row{
+  width:100%;
+  /*padding:0 80px 0 80px; */
+  height:12vh;
+  border:1px solid white;
+}
+.title-placement-row > input{
+  background-color:transparent;
+  outline:none;
+  border:none;
+  border:1px solid white;
+  width:100%;
+  height:100%;
+  padding:0;
+  margin:0;
+  font-size:5em;
+  font-weight:700;
+  -webkit-text-stroke: 1px black;
+    color: transparent;
+}
+
+body{
+    background-color: #172a3a;
+    font-family: 'Nunito', sans-serif;
+    color:white;
+    margin:0;
+    padding:0;
+}
+
+.drag-div{
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    display: block;
+}
+
+.cover{
+    position: relative;
+    top: 50px;
+}
+.cover-image{
+    width: 6vw;
+}
+.cover-container-placed{
+    width: 100%;
+    height:100%;
+}
+.cover-container-placed > a > img{
+    width: 100%;
+
+}
+
+.big-grid-item{
+    width: 26vw;
+    height: 26vw;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.title-container{
+    display: inline;
+    position: relative;
+    bottom: 100px;
+    left: 150px;
+}
+
+.artist-container{
+    /* display: inline; */
+    position: relative;
+    bottom: 70px;
+    left: 150px;
+}
+
+.duration-container{
+    /* display: inline-block; */
+    position: relative;
+    bottom: 130px;
+    left: 85%;
+}
+
+.single-result-container{
+    position:relative;
+    padding-top: 30px;
+    padding-bottom: -30px;
+    height: 20%;
+    margin-bottom: 10px;
+    border: 1px solid white;
+    border-radius: 10px;
+}
+
+.single-placed-container{
+    position:relative;
+    width:100%;
+    height:100%;
+}
+
+.add-card-sign{
+    display: inline;
+    text-align:center;
+    border:1px solid white;
+    background-color:gray;
+    border-radius:20px;
+    vertical-align: middle;
+    line-height:10vw;
+    
+}
+
+.drag-div-small{
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    float: left;
+    text-align: center;
+}
+
+.drag-div-small:hover{
+    background-color: rgb(104, 102, 102, 0.226);
+    cursor: grab;
+}
+
+.drag-div-big{
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    float: right;
+    text-align: center;
+}
+
+.drag-div-big:hover{
+    background-color: rgba(104, 102, 102, 0.226);
+    cursor: grab;
+}
