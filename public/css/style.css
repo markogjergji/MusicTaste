@@ -1,17 +1,41 @@
+@import "common.css"; 
+
 body{
-    background-color: #172a3a;
-    font-family: 'Nunito', sans-serif;
-    color:white;
+    overflow: hidden;
+    font-family: Segoe Bold;
+    background-color: black;
 }
 
+@font-face {
+    font-family:'Segoe Bold';
+    src: url('/fonts/Segoe UI Bold.ttf');
+}
+
+@font-face {
+    font-family:'Segoe';
+    src: url('/fonts/Segoe UI.ttf');
+}
 #welcome{
-    padding:10vh 10vw;
-    border:1px solid white;
+    /* padding:10vh 10vw; */
+    /* border:1px solid white; */
+    width: 32vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#main-page-container{
+    position: relative;
 }
 
 #login{
-    background-color: #004346;
-    border:1px solid white;
+    background-color: #0043466b;
+    /* border:1px solid white; */
+    border-radius: 10px;
+    width: 32vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 #login>button{
     border:none;
@@ -22,4 +46,104 @@ body{
     background-color: #09bc8a;
     color:white;
     font-size:25px;
+}
+#background{
+    position: absolute;
+    top: 4.3vh;
+    left: 29vw;
+}
+#background > img{
+    width: 90vw;
+}
+#intro-con{
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    top: 30vh;
+    left: 5vw;
+    height: 45vh;
+    z-index: 1;
+}
+
+#login > a{
+    text-decoration: none;
+    color: white;
+    background-color: #0d846b;
+    padding: 10px 60px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+    font-family: 'Segoe';
+    box-shadow: inset 0px 0px 4px 1px rgb(0 0 0 / 27%);
+    transition: background-color 200ms ease;
+}
+
+
+#login > a:hover{
+    background-color: white;
+    color: #0d846b;
+}
+
+ul li {
+    display: block;
+    float: left;
+    font-size: 2em;
+    left: 0;
+    color: #ccc;
+    position: absolute;
+    text-shadow: 0 -1px 0 white, 0 1px 0 black;
+    animation: music 50s linear infinite;
+}
+
+
+@keyframes music {
+    0% {
+        transform: translateX(-20vw) scaleY(1);
+    }
+    50% {
+        transform: translateX(60vw) scaleY(0.55);
+    }
+    100% {
+        transform: translateX(105vw) scaleY(1);
+    }
+}
+  
+
+  
+  .note-amination {
+    position: absolute;
+    font-size: 20px;
+    animation-name: notes;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    opacity: 0;
+    color:#0d846b;
+    top:0;
+  }
+  
+  @keyframes notes {
+    0% {
+      font-size: 20px;
+      opacity: 0; 
+    }
+    50% {
+      opacity: 1; 
+    }
+    70% {
+        opacity: 0.5; 
+      }
+    100% {
+      font-size: 25px;
+      margin-top: 45px;
+      opacity: 0; 
+    }
+  }
+  #welcome > p{
+    font-family: 'Segoe';
+}
+#login > p{
+    font-family: 'Segoe';
 }

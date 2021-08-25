@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
+//use Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,80 +19,73 @@ use Illuminate\Http\Request;
 */
 Route::get('/', function () {
     return view('main');
+})->name('main');
+
+
+Route::get('/auth/redirect',[AuthController::class, 'provider']);
+
+Route::get('/login', [AuthController::class, 'callback']);
+
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/wall', function () {
+        return view('mywall');
+    });
+
+    Route::post('/fetchwall',[PostController::class, 'fetchWall']);
+
+    Route::post('/savewall',[PostController::class, 'saveWall']);
+
+    Route::get('/logout',[AuthController::class, 'logout']);
+
+
+    Route::match(array('get', 'post'),'/edit', function (Request $request) {
+
+        if ($request->isMethod('post')) {
+            $query = $request->get("search-query");
+            $songs = session('api')->search($query, 'track');
+            $albums = session('api')->search($query, 'album');
+            $artists = session('api')->search($query, 'artist');
+            $playlists = session('api')->search($query, 'playlist');
+            $response = array($songs,$albums,$artists,$playlists);
+            return $response;
+        }else{
+            return view('editmypage');
+        }
+    });
+    Route::post('/post',[PostController::class, 'createPost']); 
+
+    Route::get('/post', function () {
+        return view('home');
+    });
+
+    Route::get('/home', [PostController::class, 'showPosts']);
+
+    Route::post('/like', [PostController::class, 'likePost']);
+
+    Route::get('/editingtransitions', function () {
+        return view('editmypagetransitions');
+    });
+
+    Route::get('/profile', [ProfileController::class, 'userProfile']);
+
+    Route::get('/userprofile/{id}', [ProfileController::class, 'searchProfile']);
+
+    Route::post('/visibility', [ProfileController::class, 'changeVisibility']);
+
+    Route::get('/explore/{time}', [PostController::class, 'explore']);
+
+    Route::get('/showmore/{time}', [PostController::class, 'showMore']);
+
+    Route::get('/search', [PostController::class, 'search']);
+
+    Route::get('/explore', function () {
+        return redirect('/explore/day');
+    });
+
+    Route::get('/user', function () {
+        return \Auth::user();
+    });
 });
-Route::get('/login', function () {
-    $spotify = new SpotifyWebAPI\Session(
-        'a31d45cf636740ef94b8482206cce609',
-        'cf79631d587d45e996b461c6091ee0e3',
-        'http://127.0.0.1:8000/login'
-    );
-    
-    $api = new SpotifyWebAPI\SpotifyWebAPI();
-    
-    if (isset($_GET['code'])) {
-        $spotify->requestAccessToken($_GET['code']);
-        $api->setAccessToken($spotify->getAccessToken());
-        session(['spotify' => $spotify]);
-        session(['api' => $api]);
-        return redirect('/mypage');
-    } else {
-        $options = [
-            'scope' => [
-                'user-read-email',
-            ]
-        ];
-    
-        header('Location: ' . $spotify->getAuthorizeUrl($options));
-        die();
-    }
-});
-Route::get('/me', function () {
-    print_r(session('api')->me());
-});
 
-Route::get('/mypage', function () {
-
-    return view('mypage');
-/*     $results = session('api')->search('blur', 'artist');
-
-foreach ($results->artists->items as $artist) {
-    echo $artist->name;
-    echo '<img src="'.$artist->images[0]->url.'">', '<br>';
-} */
-});
-
-Route::match(array('get', 'post'),'/edit', function (Request $request) {
-
-    if ($request->isMethod('post')) {
-
-        $query = $request->get("search-query");
-        $songs = session('api')->search($query, 'track');
-        $albums = session('api')->search($query, 'album');
-        $artists = session('api')->search($query, 'artist');
-        $playlists = session('api')->search($query, 'playlist');
-        $response = array($songs,$albums,$artists,$playlists);
-        return $response;
-    }else{
-        return view('editmypage');
-    }
-
-    
-/*     $results = session('api')->search('blur', 'artist');
-
-foreach ($results->artists->items as $artist) {
-    echo $artist->name;
-    echo '<img src="'.$artist->images[0]->url.'">', '<br>';
-} */
-});
-
-Route::post('search', function (Request $request) {
-    //$query = $request->getContent();
-    //$songs = session('api')->search('e', 'track');
-    //echo $query;
-/*     $albums = session('api')->search($request->get($query), 'album');
-    $artists = session('api')->search($request->get($query), 'artist');
-    $playlists = session('api')->search($request->get($query), 'playlist');
-    $response = array($songs,$albums,$artists,$playlists); */
-    //return json(["ee" => "ee"]);
-    return "ee";
-});

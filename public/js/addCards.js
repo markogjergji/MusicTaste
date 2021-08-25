@@ -1,6 +1,8 @@
 window.addEventListener('DOMContentLoaded', () => {
 
-    const container = document.getElementById("cards");
+    let container = document.getElementById("cards");
+
+    let rowCon;
 
     //Create an array to check if a card has been placed in the grid cell
     let placementArray = new Array();
@@ -12,6 +14,48 @@ window.addEventListener('DOMContentLoaded', () => {
     addTitleRow();
     makeRows();
 
+    document.querySelector("#cards > div.title-placement-row > input[type=text]").autofocus = true;
+
+
+    if(localStorage.getItem("cards")){
+
+        let con = document.getElementById('cards-container');
+        con.innerHTML = "";
+        let obj = JSON.parse(localStorage.getItem('cards'));
+        appendDom(con,obj);
+
+        function appendDom(container, obj) {
+            for (let i = 0; i < obj.children.length; i++) {
+                if(obj.children[i].attributes[0].value === "color")
+                continue;
+                if(obj.children[i].attributes[0].value === "welcome-title")
+                continue;
+                if(obj.children[i].attributes[0].value === "title-placement-text")
+                continue;
+                
+                let tmp = document.createElement(obj.children[i].name);
+
+                if(obj.children[i].attributes[0].value === "title-placement-row"){
+                    let input = document.createElement("input");
+                    if(obj.children[i].attributes[1].value !== "null")
+                    input.value = obj.children[i].attributes[1].value;
+                    else
+                    input.value = "";
+                    tmp.appendChild(input);
+                }
+                
+                obj.children[i].attributes.forEach(e => {
+                    tmp.setAttribute(e.name,e.value);
+                });
+                
+                if (obj.children[i].length != 0) {
+                    appendDom(tmp, obj.children[i]);
+                }
+                container.append(tmp);
+            }
+        }
+        container = document.getElementById("cards");
+    }
 
     function makeRows() {
 
@@ -19,31 +63,12 @@ window.addEventListener('DOMContentLoaded', () => {
         row.setAttribute("class","single-placement-row");
         row.setAttribute("pos",placementArray.length);
 
+        addCard(row);
         placementArray.push(new Array(4).fill(0));
 
         positionArray.push(new Array(4).fill(-1));
 
-        let addSign = document.createElement("div");
-        addSign.id="add-sign";
-        addSign.textContent = "+";
-        addSign.setAttribute("class","add-card-sign");
-        addSign.addEventListener("click",(e) => addCard(e));
-
-        /* let rowColor = document.createElement("input");
-
-        rowColor.setAttribute("class","row-color");
-
-        rowColor.setAttribute("type","color");
-        rowColor.setAttribute("colorpick-eyedropper-active","false"); */
-        
-        row.appendChild(addSign);
-        /* row.appendChild(rowColor);
-
-        rowColor.addEventListener("input",() => {
-            row.style.backgroundColor = rowColor.value;
-        })
- */
-        container.appendChild(row);
+        rowCon.appendChild(row);
         
         return row;
     };
@@ -54,17 +79,23 @@ window.addEventListener('DOMContentLoaded', () => {
         let row = document.createElement("div");
         let textInput = document.createElement("input");
         textInput.setAttribute("type","text");
+        
         row.setAttribute("class","title-placement-row");
         row.appendChild(textInput);
+        container.appendChild(row);
+
+        row = document.createElement("div");
+        row.setAttribute("class","row-container");
+        rowCon = row;
         container.appendChild(row);
 
     };
 
 
-    function addCard(e){
+    function addCard(p){
 
         //Get the row of the + clicked
-        let p =  e.target.parentNode;
+       // let p =  e.target.parentNode;
      
         //Create a small grid cell
         let c = document.createElement("div");
@@ -72,24 +103,14 @@ window.addEventListener('DOMContentLoaded', () => {
         c.className += " grid-item";
 
         //Set the position as the total number of cells in the row - 1 (to start from 0)
-        c.setAttribute("pos",e.target.parentNode.childElementCount - 1);
+        //c.setAttribute("pos",e.target.parentNode.childElementCount - 1);
 
         //Insert the cell before the +
-        p.insertBefore(c,e.target);
 
-        //Remove the + when 4 cells are created
-        if(e.target.parentNode.childElementCount === 5)
-            p.removeChild(e.target);
-            
-
-            //count = placementArray[e.target.parentNode.childElementCount].filter(x => x == 1).length;
-            /* for(let i = 0 ; i < placementArray[parseInt(e.target.parentNode.getAttribute("pos"))].length ; i++){
-                if(placementArray[parseInt(e.target.parentNode.getAttribute("pos"))][i] === 0){
-                placementArray[parseInt(e.target.parentNode.getAttribute("pos"))][i] = 1;
-                break;
-            }
-            } */
-
+        for(let i = 0 ; i < 4 ; i++){
+            c.setAttribute("pos",i);
+            p.appendChild(c.cloneNode(true));
+        }
     };
 
     function addBigCard(element){
@@ -102,15 +123,66 @@ window.addEventListener('DOMContentLoaded', () => {
             
     };
 
+    function goNext(){
+       // let obj = {"cards" : document.getElementById("cards-container").innerHTML.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;")};
+      
+        let titles = document.querySelectorAll(".title-placement-row > input:first-child");
+
+        let d = document.createElement("div");
+        d.setAttribute("class","title-placement-text");
+        let c;
+
+        titles.forEach(e => {
+            c = d.cloneNode(true);
+            e.parentNode.setAttribute("text",e.value);
+            e.parentElement.appendChild(c);
+        });
+
+
+        let obj = stringify(document.getElementById("cards-container"));
+     
+        localStorage.setItem("cards",JSON.stringify(obj));
+        window.location.href = '/editingtransitions'
+    }
+
+
+    function stringify(element) {
+        let obj = {};
+        obj.name = element.localName;
+        obj.attributes = [];
+        obj.children = [];
+        Array.from(element.attributes).forEach(a => {
+            obj.attributes.push({ name: a.name, value: a.value });
+        });
+        Array.from(element.children).forEach(c => {
+            obj.children.push(stringify(c));
+        });
+        
+        return obj;
+    }
+
     document.getElementById("addRow").addEventListener("click",() => makeRows());
 
     document.getElementById("addTitleRow").addEventListener("click",() => addTitleRow());
 
+    document.getElementById("next").addEventListener("click",() => goNext());
 
-
-    document.getElementById("search").addEventListener("change",() => {
+    document.getElementById("search").addEventListener("input",() => {
 
         let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        if(document.querySelector("#search-info")){
+            document.querySelector("#search-info").style.display = "none";
+        }
+
+        
+        let n = document.querySelector("#search-container");
+
+        while (n.firstElementChild.nextElementSibling) {
+            n.removeChild(n.lastElementChild);
+        }
+        
+        
 
         let searchquery = document.getElementById("search").value;
 
@@ -132,7 +204,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 
         }).then(function(res){
     
-            console.log(res);
 
             let type;
             let row;
@@ -161,8 +232,10 @@ window.addEventListener('DOMContentLoaded', () => {
                     case 0:
 
                         type = document.createElement("div");
+                        type.setAttribute("id","songs");
                         typeText = document.createElement("p");
                         typeText.textContent = "Songs";
+                        typeText.setAttribute("class","type-text");
                         type.appendChild(typeText);            
 
                         document.getElementById("search-container").appendChild(type);
@@ -186,7 +259,9 @@ window.addEventListener('DOMContentLoaded', () => {
                             titleLink.setAttribute("href",obj["tracks"]["items"][key]["external_urls"]["spotify"]);
                             titleLink.textContent = obj["tracks"]["items"][key]["name"];
                             titleLink.setAttribute("class","title-text");
+                            
                             title.setAttribute("class","title-container");
+                            
                             title.appendChild(titleLink);
 
                             duration = document.createElement("div");
@@ -214,43 +289,18 @@ window.addEventListener('DOMContentLoaded', () => {
                             row.setAttribute("draggable","true");
                             row.setAttribute("ondragstart","event.dataTransfer.setData('text/plain',null)");
 
-                            let children = row.childNodes;
+                            addBigSmall(row,row.childNodes);
 
-                            children.forEach(function(item){
-                                item.setAttribute("ondragstart","event.preventDefault();event.stopPropagation();");
-                            });
-
-                            let dragdivsmall = document.createElement("div");
-                            let h = document.createElement("p");
-                            let t = document.createTextNode("Small");
-                            h.appendChild(t); 
-
-                            dragdivsmall.setAttribute("class","drag-div-small");
-
-                            dragdivsmall.appendChild(h);
- 
-
-                            h = document.createElement("p");
-                            t = document.createTextNode("Big");
-                            h.appendChild(t);
-
-                            let dragdivbig = document.createElement("div");
-                            dragdivbig.setAttribute("class","drag-div-big");
-
-                            dragdivbig.setAttribute("ondrag","selectSize('big')");
-
-                            dragdivbig.appendChild(h);
-                            row.appendChild(dragdivsmall);
-                            row.appendChild(dragdivbig);
-                            document.getElementById("search-container").appendChild(row);
                             
                         }
                         break;
 
                     case 1:
                         type = document.createElement("div");
+                        type.setAttribute("id","albums");
                         typeText = document.createElement("p");
                         typeText.textContent = "Albums";
+                        typeText.setAttribute("class","type-text");
                         type.appendChild(typeText);
                         
                         document.getElementById("search-container").appendChild(type);
@@ -265,12 +315,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
                             coverLink.setAttribute("href",obj["albums"]["items"][key]["external_urls"]["spotify"])
                             coverLink.appendChild(coverImage);
+                            cover.setAttribute("class","cover-container");
                             cover.appendChild(coverLink);
 
                             title = document.createElement("div");
                             titleLink = document.createElement("a");
                             titleLink.setAttribute("href",obj["albums"]["items"][key]["external_urls"]["spotify"]);
                             titleLink.textContent = obj["albums"]["items"][key]["name"];
+                            title.setAttribute("class","title-container");
                             title.appendChild(titleLink);
 
                             artist = document.createElement("div");
@@ -278,21 +330,25 @@ window.addEventListener('DOMContentLoaded', () => {
                             artistText.textContent = obj["albums"]["items"][key]["artists"][0]["name"];
                             artistText.setAttribute("href",obj["albums"]["items"][key]["artists"][0]["external_urls"]["spotify"]);
                             artist.appendChild(artistText);
-
+                            artist.setAttribute("class","artist-container");
                             row = document.createElement("div");
                             row.appendChild(cover);
                             row.appendChild(title);
                             row.appendChild(artist);
-
+                            row.setAttribute("class","single-result-container");
+                            row.setAttribute("draggable","true");
+                            row.setAttribute("ondragstart","event.dataTransfer.setData('text/plain',null)");
                             document.getElementById("search-container").appendChild(row);
-                        
+                            addBigSmall(row,row.childNodes);
                         }
                         break;
 
                     case 2:
                         type = document.createElement("div");
+                        type.setAttribute("id","artists");
                         typeText = document.createElement("p");
                         typeText.textContent = "Artists";
+                        typeText.setAttribute("class","type-text");
                         type.appendChild(typeText);                        
                     
                         document.getElementById("search-container").appendChild(type);
@@ -307,28 +363,34 @@ window.addEventListener('DOMContentLoaded', () => {
 
                             coverLink.setAttribute("href",obj["artists"]["items"][key]["external_urls"]["spotify"])
                             coverLink.appendChild(coverImage);
+                            cover.setAttribute("class","cover-container");
                             cover.appendChild(coverLink);
 
                             title = document.createElement("div");
                             titleLink = document.createElement("a");
                             titleLink.setAttribute("href",obj["artists"]["items"][key]["external_urls"]["spotify"]);
                             titleLink.textContent = obj["artists"]["items"][key]["name"];
+                            title.setAttribute("class","title-container");
                             title.appendChild(titleLink);
 
                             row = document.createElement("div");
                             row.appendChild(cover);
                             row.appendChild(title);
-
+                            row.setAttribute("class","single-result-container");
+                            row.setAttribute("draggable","true");
+                            row.setAttribute("ondragstart","event.dataTransfer.setData('text/plain',null)");
                             document.getElementById("search-container").appendChild(row);
-                        
+                            addBigSmall(row,row.childNodes);
                         }
                         break;
 
                     case 3:
 
                         type = document.createElement("div");
+                        type.setAttribute("id","playlists");
                         typeText = document.createElement("p");
                         typeText.textContent = "Playlists";
+                        typeText.setAttribute("class","type-text");
                         type.appendChild(typeText);
 
                         document.getElementById("search-container").appendChild(type);
@@ -343,37 +405,82 @@ window.addEventListener('DOMContentLoaded', () => {
 
                             coverLink.setAttribute("href",obj["playlists"]["items"][key]["external_urls"]["spotify"])
                             coverLink.appendChild(coverImage);
+                            cover.setAttribute("class","cover-container");
                             cover.appendChild(coverLink);
 
                             title = document.createElement("div");
                             titleLink = document.createElement("a");
                             titleLink.setAttribute("href",obj["playlists"]["items"][key]["external_urls"]["spotify"]);
                             titleLink.textContent = obj["playlists"]["items"][key]["name"];
+                            title.setAttribute("class","title-container");
                             title.appendChild(titleLink);
 
                             user = document.createElement("div");
                             userText = document.createElement("a");
                             userText.textContent = obj["playlists"]["items"][key]["owner"]["display_name"];
                             userText.setAttribute("href",obj["playlists"]["items"][key]["owner"]["external_urls"]["spotify"]);
+                            user.setAttribute("class","artist-container");
                             user.appendChild(userText);               
 
                             row = document.createElement("div");
                             row.appendChild(cover);
                             row.appendChild(title);
                             row.appendChild(user);
-
+                            row.setAttribute("class","single-result-container");
+                            row.setAttribute("draggable","true");
+                            row.setAttribute("ondragstart","event.dataTransfer.setData('text/plain',null)");
                             document.getElementById("search-container").appendChild(row);
-                        
+                            addBigSmall(row,row.childNodes);
                         }
                     break;
                 }
             }
+
+
+            })
+            .then(function(){
+                Array.from(document.getElementsByClassName("title-text")).forEach(e => {
+                    if(e.getBoundingClientRect().width > 150)
+                        e.style.animation = "marquee 7s linear infinite";
+                })
             })
             .catch(function(error){
     
     
             });
     });
+
+    
+    function addBigSmall(row,children){
+
+        children.forEach(function(item){
+            item.setAttribute("ondragstart","event.preventDefault();event.stopPropagation();");
+        });
+
+        let dragdivsmall = document.createElement("div");
+        let h = document.createElement("p");
+        let t = document.createTextNode("Small");
+        h.appendChild(t); 
+
+        dragdivsmall.setAttribute("class","drag-div-small");
+
+        dragdivsmall.appendChild(h);
+
+
+        h = document.createElement("p");
+        t = document.createTextNode("Big");
+        h.appendChild(t);
+
+        let dragdivbig = document.createElement("div");
+        dragdivbig.setAttribute("class","drag-div-big");
+
+        dragdivbig.setAttribute("ondrag","selectSize('big')");
+
+        dragdivbig.appendChild(h);
+        row.appendChild(dragdivsmall);
+        row.appendChild(dragdivbig);
+        document.getElementById("search-container").appendChild(row);
+    }
 
     //Convert milliseconds to MM:SS format
     function time(millis) {
@@ -437,8 +544,24 @@ window.addEventListener('DOMContentLoaded', () => {
 
             //Create a delete button
             let remove = document.createElement("button");
-            remove.textContent = "X";
+            remove.setAttribute("class","remove-button");
+            remove.innerHTML = "<i class='fas fa-times-circle'></i>";
             nodeCopy.appendChild(remove);
+
+            let left = document.createElement("button");
+            left.setAttribute("class","left-button");
+            left.innerHTML = "<i class='fas fa-arrow-right'></i>";
+            nodeCopy.appendChild(left);
+
+            let top = document.createElement("button");
+            top.setAttribute("class","top-button");
+            top.innerHTML = "<i class='fas fa-arrow-right'></i>";
+            nodeCopy.appendChild(top);
+
+            let right = document.createElement("button");
+            right.setAttribute("class","right-button");
+            right.innerHTML = "<i class='fas fa-arrow-left'></i>";
+            nodeCopy.appendChild(right);
 
             if(size == "small"){
 
@@ -456,8 +579,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 
                 //Create an event listener for the remove button of a small grid cell (remove 1 from the array)
                 remove.addEventListener("click" , () => {
+                    placementArray[parseInt(e.target.parentNode.getAttribute("pos"))][parseInt(e.target.getAttribute("pos"))] = 0;
                     e.target.removeChild(nodeCopy);
                 })
+                
 
                 //Append result to the cell
                 e.target.appendChild(nodeCopy);
@@ -527,9 +652,34 @@ window.addEventListener('DOMContentLoaded', () => {
                 })
             
             }
+            left.addEventListener("click" , (a) => {
 
-            console.log("placement Array");
-            console.log(placementArray);
+                if(a.target.parentNode.parentNode.classList.contains("slide-top")||
+                
+                a.target.parentNode.parentNode.classList.contains("slide-right"))
+                a.target.parentNode.parentNode.classList.remove("slide-top","slide-right");
+
+                a.target.parentNode.parentNode.classList.add("slide-left");
+
+
+            })
+            top.addEventListener("click" , (a) => {
+                if(a.target.parentNode.parentNode.classList.contains("slide-left")||
+    
+                a.target.parentNode.parentNode.classList.contains("slide-right"))
+                a.target.parentNode.parentNode.classList.remove("slide-left","slide-right");
+
+                a.target.parentNode.parentNode.classList.add("slide-top");
+            })
+            right.addEventListener("click" , (a) => {
+
+                if(a.target.parentNode.parentNode.classList.contains("slide-left")||
+                
+                a.target.parentNode.parentNode.classList.contains("slide-top"))
+                a.target.parentNode.parentNode.classList.remove("slide-left","slide-top");
+
+                a.target.parentNode.parentNode.classList.add("slide-right");
+            })
 
         }
     }, false);
